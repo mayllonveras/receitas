@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { CategoryService } from "../../../application/services/CategoryService.js"
+import { CategoryService } from "../../../core/CategoryService.js"
 
 export function categoriesRoutes(service: CategoryService) {
   const router = Router()

@@ -20,20 +20,20 @@ Aplicação em camadas (SRP) construída com Node.js, TypeScript e Express, com 
   - Receita deve referenciar uma Categoria existente.
   - Bloqueio de exclusão de Categoria quando houver Receitas relacionadas.
 
-## Arquitetura
-- `domain`: entidades e contratos de repositório.
-- `infrastructure`: implementações concretas (aqui, memória).
-- `application`: serviços de negócio, sem HTTP ou detalhes de persistência.
-- `presentation`: API HTTP (Express), rotas, middlewares e composição.
+## Arquitetura Simplificada (2 Camadas)
+- `core`: Contém toda a lógica de negócio, modelos de dados e acesso aos dados (armazenamento em memória).
+- `presentation`: API HTTP (Express), rotas e configuração do servidor.
 
 - Referências úteis no código:
-- Servidor e composição: `src/presentation/http/server.ts`.
-- Serviços: `src/application/services/*Service.ts`.
-- Rotas: `src/presentation/http/routes/*.ts`.
+- Servidor e rotas: `src/presentation/http`.
+- Lógica de negócio (Services): `src/core/*Service.ts`.
+- Dados em memória: `src/core/store.ts`.
 
-### Criação e persistência
-- Os repositórios geram `id` e `createdAt` ao persistir uma entidade.
-- Os serviços validam e normalizam entradas (ex.: `trim` de `name`/`title`) e delegam a criação aos repositórios.
+### Fluxo de Dados
+1. Requisição HTTP chega na `presentation`.
+2. Controller/Rota chama o `Service` correspondente no `core`.
+3. `Service` valida regras e manipula o `store` (banco de dados em memória).
+4. Resposta retorna pela `presentation`.
 
 ## Pré-requisitos
 - Node.js 18+ (recomendado 20+)
@@ -155,24 +155,12 @@ Códigos de erro: as validações retornam `400` com `{ error: "mensagem" }` (mi
 ```
 receitas/
 ├─ src/
-│  ├─ domain/
-│  │  ├─ entities/
-│  │  │  ├─ Category.ts
-│  │  │  └─ Recipe.ts
-│  │  └─ repositories/
-│  │     ├─ ICategoryRepository.ts
-│  │     └─ IRecipeRepository.ts
-│  ├─ infrastructure/
-│  │  └─ repositories/
-│  │     └─ memory/
-│  │        ├─ CategoryMemoryRepository.ts
-│  │        ├─ IngredientMemoryRepository.ts
-│  │        └─ RecipeMemoryRepository.ts
-│  ├─ application/
-│  │  └─ services/
-│  │     ├─ CategoryService.ts
-│  │     ├─ IngredientService.ts
-│  │     └─ RecipeService.ts
+│  ├─ core/
+│  │  ├─ CategoryService.ts
+│  │  ├─ IngredientService.ts
+│  │  ├─ RecipeService.ts
+│  │  ├─ models.ts
+│  │  └─ store.ts
 │  └─ presentation/
 │     └─ http/
 │        ├─ middlewares/errorHandler.ts

@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { RecipeService } from "../../../application/services/RecipeService.js"
+import { RecipeService } from "../../../core/RecipeService.js"
 
 export function recipesRoutes(service: RecipeService) {
   const router = Router()
