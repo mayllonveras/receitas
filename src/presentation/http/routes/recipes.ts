@@ -41,6 +41,7 @@ export function recipesRoutes(service: IRecipeService) {
         steps: Array.isArray(req.body.steps) ? req.body.steps.map(String) : [],
         servings: Number(req.body.servings ?? 0),
         categoryId: String(req.body.categoryId ?? ""),
+        status: req.body.status, //
       })
       res.status(201).json(item)
     } catch (error) {
@@ -57,6 +58,7 @@ export function recipesRoutes(service: IRecipeService) {
         steps: req.body.steps,
         servings: req.body.servings,
         categoryId: req.body.categoryId,
+        status: req.body.status,//
       })
       res.json(item)
     } catch (error) {

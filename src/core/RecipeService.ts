@@ -1,6 +1,6 @@
 import crypto from "node:crypto"
 import { store } from "./store.js"
-import { Recipe, CreateRecipeInput } from "./models.js"
+import { Recipe, CreateRecipeInput, RecipeStatus } from "./models.js"
 import { CategoryService } from "./CategoryService.js"
 import { IngredientService } from "./IngredientService.js"
 import { IRecipeService } from "./interfaces/IRecipeService.js"
@@ -22,6 +22,9 @@ export class RecipeService implements IRecipeService {
     }
 
     let items = [...store.recipes]
+    
+    // Apenas receitas published aparecem nas listagens públicas
+    items = items.filter(r => r.status === "published")
     
     if (categoryId) {
       items = items.filter(r => r.categoryId === categoryId)
@@ -87,6 +90,12 @@ export class RecipeService implements IRecipeService {
     const servings = Number(input.servings)
     if (!(servings > 0)) throw new Error("Servings must be greater than 0")
 
+    // Status padrão é "draft" se não informado
+    const status: RecipeStatus = input.status || "draft"
+    if (!["draft", "published", "archived"].includes(status)) {
+      throw new Error("Invalid status. Must be 'draft', 'published' or 'archived'")
+    }
+
     const recipe: Recipe = {
       id: crypto.randomUUID(),
       title,
@@ -95,6 +104,7 @@ export class RecipeService implements IRecipeService {
       steps,
       servings,
       categoryId: input.categoryId,
+      status,
       createdAt: new Date(),
     }
     store.recipes.push(recipe)
@@ -105,6 +115,11 @@ export class RecipeService implements IRecipeService {
     const idx = store.recipes.findIndex(r => r.id === id)
     if (idx < 0) throw new Error("Recipe not found")
     const current = store.recipes[idx]
+
+    // Receitas archived não podem ser editadas
+    if (current.status === "archived") {
+      throw new Error("Archived recipes cannot be edited")
+    }
 
     const updated = { ...current }
 
@@ -158,14 +173,30 @@ export class RecipeService implements IRecipeService {
       updated.ingredients = resolved
     }
 
+    // Atualizar status se fornecido
+    if (data.status !== undefined) {
+      const status = data.status
+      if (!["draft", "published", "archived"].includes(status)) {
+        throw new Error("Invalid status. Must be 'draft', 'published' or 'archived'")
+      }
+      updated.status = status
+    }
+
     store.recipes[idx] = updated
     return updated
   }
 
   async delete(id: string): Promise<void> {
     const idx = store.recipes.findIndex(r => r.id === id)
-    if (idx >= 0) {
-      store.recipes.splice(idx, 1)
+    if (idx < 0) throw new Error("Recipe not found")
+    
+    const recipe = store.recipes[idx]
+    
+    // Receitas published não podem ser excluídas, apenas arquivadas
+    if (recipe.status === "published") {
+      throw new Error("Published recipes cannot be deleted. They must be archived first")
     }
+    
+    store.recipes.splice(idx, 1)
   }
 }
