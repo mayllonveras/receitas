@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/presentation/http/server.js",
-    "dev": "ts-node src/presentation/http/server.ts"
+    "dev": "node --loader ts-node/esm src/presentation/http/server.ts"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +19,7 @@
     "@types/express": "^5.0.6",
     "@types/node": "^24.10.2",
     "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.3"
   }
 }
