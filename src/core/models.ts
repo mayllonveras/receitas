@@ -19,6 +19,7 @@ export type Recipe = {
   servings: number
   categoryId: string
   createdAt: Date
+  state: "Draft"|"Published"|"Arquived"
 }
 
 export type CreateRecipeInput = {
@@ -28,4 +29,5 @@ export type CreateRecipeInput = {
   steps: string[]
   servings: number
   categoryId: string
+  state: "Draft"|"Published"|"Arquived"
 }

@@ -4,6 +4,7 @@ import { Recipe, CreateRecipeInput } from "./models.js"
 import { CategoryService } from "./CategoryService.js"
 import { IngredientService } from "./IngredientService.js"
 import { IRecipeService } from "./interfaces/IRecipeService.js"
+import { error } from "node:console"
 
 export class RecipeService implements IRecipeService {
   private categoryService = new CategoryService()
@@ -35,18 +36,24 @@ export class RecipeService implements IRecipeService {
       items = items.filter((recipe) => {
         if (recipe.title.toLowerCase().includes(searchQuery)) return true
         if (recipe.description && recipe.description.toLowerCase().includes(searchQuery)) return true
-        return recipe.ingredients.some((ingredient) => {
+          return recipe.ingredients.some((ingredient) => {
           const name = nameById.get(ingredient.ingredientId)
           return !!name && name.includes(searchQuery)
         })
       })
     }
+    items=items.filter((recipe) => {
+      if(recipe.state==="Published") return true
+      return false
+    })
+    
     return items
   }
 
   async get(id: string): Promise<Recipe> {
     const found = store.recipes.find(r => r.id === id)
     if (!found) throw new Error("Recipe not found")
+    if(found.state!=="Published") throw new Error("this isn`t published.")
     return found
   }
 
@@ -96,6 +103,7 @@ export class RecipeService implements IRecipeService {
       servings,
       categoryId: input.categoryId,
       createdAt: new Date(),
+      state: "Draft"
     }
     store.recipes.push(recipe)
     return recipe
@@ -103,6 +111,7 @@ export class RecipeService implements IRecipeService {
 
   async update(id: string, data: Partial<CreateRecipeInput>): Promise<Recipe> {
     const idx = store.recipes.findIndex(r => r.id === id)
+    if(store.recipes[idx].state==="Arquived") throw new Error("Arquived recipes can`t update")
     if (idx < 0) throw new Error("Recipe not found")
     const current = store.recipes[idx]
 
@@ -157,15 +166,44 @@ export class RecipeService implements IRecipeService {
       }
       updated.ingredients = resolved
     }
-
+    
     store.recipes[idx] = updated
     return updated
   }
 
   async delete(id: string): Promise<void> {
     const idx = store.recipes.findIndex(r => r.id === id)
+    if(store.recipes[idx].state==="Published") throw new Error("Published recipes con`t be deleted.")
     if (idx >= 0) {
       store.recipes.splice(idx, 1)
     }
   }
+  async publish(id: string): Promise<void> {
+    const recipe = store.recipes.find(r => r.id === id)
+
+    if (!recipe) throw new Error("Recipe not found.")
+    if(recipe.state==="Published") throw new Error("The recipe has already been published.")
+    if(recipe.state==="Arquived") throw new Error("This recipe is filed away.")
+    store.recipes[store.recipes.indexOf(recipe)] = {
+      id: recipe.id,
+      title:recipe.title,
+      description:recipe.description,
+      ingredients: recipe.ingredients,
+      steps:recipe.steps,
+      servings:recipe.servings,
+      categoryId: recipe.categoryId,
+      createdAt: recipe.createdAt,
+      state: "Published"
+    }
+  }
+  async arquive(id: string): Promise<void> {
+    const recipe = store.recipes.find(r => r.id === id)
+
+    if (!recipe) throw new Error("Recipe not found.")
+    if(recipe.state==="Draft") throw new Error("The recipe can`t be a Draft.")
+    if(recipe.state==="Arquived") throw new Error("This recipe is filed away.")
+    recipe.state="Published"
+    store.recipes[store.recipes.indexOf(recipe)].state="Arquived"
+  }
+  
 }

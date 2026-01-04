@@ -248,7 +248,8 @@ collection:
       mimeType: application/json
       text: |-
         {
-          "categoryId": "496fbb17-5667-469e-897d-af2fbe5c92bd"
+          "categoryId": "496fbb17-5667-469e-897d-af2fbe5c92bd",
+          "state":"Publish"
         }
     headers:
       - name: Content-Type
