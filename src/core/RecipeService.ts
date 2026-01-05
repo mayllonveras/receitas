@@ -6,6 +6,24 @@ import { IngredientService } from "./IngredientService.js"
 import { IRecipeService } from "./interfaces/IRecipeService.js"
 
 export class RecipeService implements IRecipeService {
+  async scaleRecipe(id: string, servings: number): Promise<Recipe> {
+    if (!(servings > 0)) throw new Error("Servings must be greater than 0");
+  const recipe = await this.get(id);
+  if (!recipe) throw new Error("Recipe not found");
+
+  const factor = servings / recipe.servings;
+
+  // Cria uma nova receita escalonada (não altera a original)
+  return {
+    ...recipe,
+    servings,
+    ingredients: recipe.ingredients.map(ing => ({
+      ...ing,
+      quantity: ing.quantity * factor
+    })),
+    createdAt: new Date()
+  };
+  }
 
   private categoryService = new CategoryService()
   private ingredientService = new IngredientService()

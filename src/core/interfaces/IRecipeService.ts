@@ -7,4 +7,5 @@ export interface IRecipeService {
   update(id: string, data: Partial<CreateRecipeInput>): Promise<Recipe>;
   delete(id: string): Promise<void>;
   consolidateShoppingList(recipeIds: string[]): Promise<Array<{ name: string, unit: string, quantity: number }>>;
+  scaleRecipe(id: string, servings: number) : Promise<Recipe>;
 }
