@@ -90,6 +90,19 @@ export function recipesRoutes(service: IRecipeService) {
       next(error)
     }
   })
+
+   router.post("/:id/scale", async (req, res, next) => {
+    try {
+      const id = req.params.id
+      const servings = Number(req.body.servings)
+
+      const receitaEscalada = await service.escalarReceita(id, servings)
+
+      res.json(receitaEscalada)
+    } catch (error) {
+      next(error)
+    }
+  })
   return router
 
 }

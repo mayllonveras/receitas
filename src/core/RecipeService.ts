@@ -4,7 +4,6 @@ import { Recipe, CreateRecipeInput } from "./models.js"
 import { CategoryService } from "./CategoryService.js"
 import { IngredientService } from "./IngredientService.js"
 import { IRecipeService } from "./interfaces/IRecipeService.js"
-import { error } from "node:console"
 
 export class RecipeService implements IRecipeService {
   private categoryService = new CategoryService()
@@ -205,5 +204,32 @@ export class RecipeService implements IRecipeService {
     recipe.state="Published"
     store.recipes[store.recipes.indexOf(recipe)].state="Arquived"
   }
+
+  async escalarReceita(id: string, novasPorcoes: number): Promise<Recipe> {
+  if (novasPorcoes <= 0) {
+    throw new Error("A quantidade de porções deve ser maior que zero")
+  }
+
+  const receitaOriginal = store.recipes.find(r => r.id === id)
+  if (!receitaOriginal) {
+    throw new Error("Receita não encontrada")
+  }
+
+  const fator = novasPorcoes / receitaOriginal.servings
+
+  const ingredientesEscalados = receitaOriginal.ingredients.map(ingrediente => ({
+    ingredientId: ingrediente.ingredientId,
+    quantity: ingrediente.quantity * fator,
+    unit: ingrediente.unit
+  }))
+
+  return {
+    ...receitaOriginal,
+    servings: novasPorcoes,
+    ingredients: ingredientesEscalados,
+    steps: [...receitaOriginal.steps]
+  }
+  }
+
   
 }
