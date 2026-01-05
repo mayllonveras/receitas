@@ -73,6 +73,19 @@ export function recipesRoutes(service: IRecipeService) {
     }
   })
 
+  router.get("/:id/scale", async (req, res, next) => {
+  try {
+    const id = req.params.id
+    const servings = Number(req.query.servings)
+
+    const result = await service.scaleRecipe(id, servings)
+
+    res.json(result)
+  } catch (error) {
+    next(error)
+  }
+})
+
   return router
 }
 
