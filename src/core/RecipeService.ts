@@ -24,6 +24,7 @@ export class RecipeService implements IRecipeService {
     createdAt: new Date()
   };
   }
+
   private categoryService = new CategoryService()
   private ingredientService = new IngredientService()
 
@@ -185,5 +186,32 @@ export class RecipeService implements IRecipeService {
     if (idx >= 0) {
       store.recipes.splice(idx, 1)
     }
+  }
+  async consolidateShoppingList(recipeIds: string[]): Promise<Array<{ name: string; unit: string; quantity: number }>> {
+    
+    // Search Recipe
+
+    const findRecipesById = await Promise.all(recipeIds.map((id) => this.get(id)));
+    
+    const allIngredients = await this.ingredientService.list();
+    const nameById = new Map(allIngredients.map((ing) => [ing.id, ing.name]));  
+
+    // Consolidate Recipes
+    const consolidated = new Map<string, { name : string; unit : string, quantity : number}>();
+
+    for (const recipe of findRecipesById) {
+      for (const ing of recipe.ingredients) {
+        const key = `${ing.ingredientId}_${ing.unit}`;
+        const name = nameById.get(ing.ingredientId) ?? "Unknown";
+
+        if (consolidated.has(key)) {
+          consolidated.get(key)!.quantity += ing.quantity;
+        } else {
+          consolidated.set(key, { name, unit : ing.unit, quantity : ing.quantity});
+        }
+      }
+    }
+
+    return Array.from(consolidated.values());
   }
 }

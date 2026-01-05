@@ -33,10 +33,10 @@ export function recipesRoutes(service: IRecipeService) {
         description: req.body.description,
         ingredients: Array.isArray(req.body.ingredients)
           ? req.body.ingredients.map((i: any) => ({
-              name: String(i?.name ?? ""),
-              quantity: Number(i?.quantity ?? 0),
-              unit: String(i?.unit ?? ""),
-            }))
+            name: String(i?.name ?? ""),
+            quantity: Number(i?.quantity ?? 0),
+            unit: String(i?.unit ?? ""),
+          }))
           : [],
         steps: Array.isArray(req.body.steps) ? req.body.steps.map(String) : [],
         servings: Number(req.body.servings ?? 0),
@@ -47,6 +47,19 @@ export function recipesRoutes(service: IRecipeService) {
       next(error)
     }
   })
+
+  router.post("/shopping-list", async (req, res, next) => {
+    try {
+      const { recipeIds } = req.body;
+      if (!Array.isArray(recipeIds) || recipeIds.length === 0) {
+        return res.status(400).json({ error: "recipeIds deve ser um array não vazio" });
+      }
+      const result = await service.consolidateShoppingList(recipeIds);
+      res.json(result);
+    } catch (err) {
+      next(err);
+    }
+  });
 
   router.put("/:id", async (req, res, next) => {
     try {
