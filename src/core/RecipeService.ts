@@ -41,6 +41,8 @@ export class RecipeService implements IRecipeService {
     }
 
     let items = [...store.recipes]
+
+    items = items.filter(recipe => recipe.status === 'published')
     
     if (categoryId) {
       items = items.filter(r => r.categoryId === categoryId)
@@ -114,6 +116,7 @@ export class RecipeService implements IRecipeService {
       steps,
       servings,
       categoryId: input.categoryId,
+      status: 'draft',
       createdAt: new Date(),
     }
     store.recipes.push(recipe)
@@ -124,6 +127,10 @@ export class RecipeService implements IRecipeService {
     const idx = store.recipes.findIndex(r => r.id === id)
     if (idx < 0) throw new Error("Recipe not found")
     const current = store.recipes[idx]
+
+    if (current.status === 'archived') {
+      throw new Error("Archived recipes cannot be edited")
+    }
 
     const updated = { ...current }
 
@@ -183,10 +190,16 @@ export class RecipeService implements IRecipeService {
 
   async delete(id: string): Promise<void> {
     const idx = store.recipes.findIndex(r => r.id === id)
-    if (idx >= 0) {
-      store.recipes.splice(idx, 1)
+    if (idx < 0) throw new Error("Recipe not found")
+
+    const recipe = store.recipes[idx]
+
+    if (recipe.status === 'published') {
+    throw new Error("Published recipes cannot be deleted. They must be archived.")
     }
-  }
+
+  store.recipes.splice(idx, 1)
+}
   async consolidateShoppingList(recipeIds: string[]): Promise<Array<{ name: string; unit: string; quantity: number }>> {
     
     // Search Recipe
