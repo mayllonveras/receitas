@@ -4,6 +4,7 @@ import { IRecipeService } from "../../../core/interfaces/IRecipeService.js"
 export function recipesRoutes(service: IRecipeService) {
   const router = Router()
 
+  
   router.get("/", async (req, res, next) => {
     try {
       const items = await service.list({
