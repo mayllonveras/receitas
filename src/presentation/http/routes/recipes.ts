@@ -90,9 +90,9 @@ export function recipesRoutes(service: IRecipeService) {
 
   /**
    * CÓDIGO NOVO
-   * Endpoint para geração de lista de compras consolidada
+   *  Ação do contexto de receitas para geração de lista de compras consolidada
    */
-  router.post("/shopping-list", async (req, res, next) => {
+  router.post("/actions/shopping-list", async (req, res, next) => {
     try {
       const recipeIds = req.body.recipeIds
       const result = await service.generateShoppingList(recipeIds)
