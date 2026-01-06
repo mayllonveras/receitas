@@ -6,14 +6,25 @@ export function recipesRoutes(service: IRecipeService) {
 
   router.get("/", async (req, res, next) => {
     try {
+      // Se receber recipeIds na query, retorna lista de compras consolidada
+      if (req.query.recipeIds) {
+        const recipeIds = String(req.query.recipeIds).split(",").map(id => id.trim());
+        if (recipeIds.length === 0) {
+          return res.status(400).json({ error: "recipeIds deve conter ao menos um ID válido" });
+        }
+        const result = await service.consolidateShoppingList(recipeIds);
+        return res.json(result);
+      }
+
+      // Caso contrário, lista receitas normalmente
       const items = await service.list({
         categoryId: req.query.categoryId as string | undefined,
         categoryName: req.query.categoryName as string | undefined,
         search: req.query.search as string | undefined,
-      })
-      res.json(items)
+      });
+      res.json(items);
     } catch (error) {
-      next(error)
+      next(error);
     }
   })
 
@@ -47,19 +58,6 @@ export function recipesRoutes(service: IRecipeService) {
       next(error)
     }
   })
-
-  router.post("/shopping-list", async (req, res, next) => {
-    try {
-      const { recipeIds } = req.body;
-      if (!Array.isArray(recipeIds) || recipeIds.length === 0) {
-        return res.status(400).json({ error: "recipeIds deve ser um array não vazio" });
-      }
-      const result = await service.consolidateShoppingList(recipeIds);
-      res.json(result);
-    } catch (err) {
-      next(err);
-    }
-  });
 
   router.put("/:id", async (req, res, next) => {
     try {
