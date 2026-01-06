@@ -74,7 +74,7 @@ export function recipesRoutes(service: IRecipeService) {
       next(error)
     }
   })
-  router.put("//:id", async (req, res ,next)=>{
+  router.put("/:id/Publish", async (req, res ,next)=>{
     try {
       const item = await service.publish(req.params.id)
       res.json(item)
@@ -82,7 +82,7 @@ export function recipesRoutes(service: IRecipeService) {
       next(error)
     }
   })
-  router.put("///:id", async (req, res ,next)=>{
+  router.put("/:id/Archive", async (req, res ,next)=>{
     try {
       const item = await service.arquive(req.params.id)
       res.json(item)
@@ -91,7 +91,7 @@ export function recipesRoutes(service: IRecipeService) {
     }
   })
 
-   router.post("/:id/scale", async (req, res, next) => {
+   router.get("/:id/scale", async (req, res, next) => {
     try {
       const id = req.params.id
       const servings = Number(req.body.servings)
