@@ -19,6 +19,7 @@ export type Recipe = {
   servings: number
   categoryId: string
   createdAt: Date
+  status:'draft' | 'published' | 'archived'///Status adicionado em recipes
 }
 
 export type CreateRecipeInput = {

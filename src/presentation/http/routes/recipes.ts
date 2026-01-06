@@ -4,7 +4,26 @@ import { IRecipeService } from "../../../core/interfaces/IRecipeService.js"
 export function recipesRoutes(service: IRecipeService) {
   const router = Router()
 
-  
+     ///endpoint nova de public/status
+  router.patch("/:id/public", async (req, res, next) => {
+    try {
+      const item = await service.publicar(req.params.id)
+      res.json(item)
+    } catch (error) {
+      next(error)
+    }
+  })
+  ///
+  ///endpoint nova de archive/status
+  router.patch("/:id/archived", async (req, res, next) => {
+    try {
+      const item = await service.archivar(req.params.id)
+      res.json(item)
+    } catch (error) {
+      next(error)
+    }
+  })
+///
   router.get("/", async (req, res, next) => {
     try {
       const items = await service.list({

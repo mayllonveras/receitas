@@ -41,16 +41,22 @@ export class RecipeService implements IRecipeService {
         })
       })
     }
-    return items
+    let f = items.filter(c => c.status == 'published')
+    return f
   }
 
-  async get(id: string): Promise<Recipe> {
+   async get(id: string): Promise<Recipe> {
     const found = store.recipes.find(r => r.id === id)
     if (!found) throw new Error("Recipe not found")
+    ///Verificação status
+    if (found.status !== "published") {
+      throw new Error("Only published recipes can be accessed")
+    }
+    ///
     return found
   }
 
-  async create(input: CreateRecipeInput): Promise<Recipe> {
+async create(input: CreateRecipeInput): Promise<Recipe> {
     const title = input.title.trim()
     if (!title) throw new Error("Title is required")
 
@@ -61,10 +67,10 @@ export class RecipeService implements IRecipeService {
     // Process Ingredients
     const incoming = Array.isArray(input.ingredients)
       ? input.ingredients.map((i) => ({
-          name: String(i.name ?? "").trim(),
-          quantity: Number(i.quantity ?? 0),
-          unit: String(i.unit ?? "").trim(),
-        }))
+        name: String(i.name ?? "").trim(),
+        quantity: Number(i.quantity ?? 0),
+        unit: String(i.unit ?? "").trim(),
+      }))
       : []
 
     if (incoming.length === 0) throw new Error("Ingredients are required")
@@ -83,7 +89,7 @@ export class RecipeService implements IRecipeService {
     }
 
     const steps = Array.isArray(input.steps) ? input.steps.map((s) => String(s)) : []
-    
+
     const servings = Number(input.servings)
     if (!(servings > 0)) throw new Error("Servings must be greater than 0")
 
@@ -96,7 +102,9 @@ export class RecipeService implements IRecipeService {
       servings,
       categoryId: input.categoryId,
       createdAt: new Date(),
+      status: 'draft'///Propriedade status
     }
+
     store.recipes.push(recipe)
     return recipe
   }
@@ -104,7 +112,14 @@ export class RecipeService implements IRecipeService {
   async update(id: string, data: Partial<CreateRecipeInput>): Promise<Recipe> {
     const idx = store.recipes.findIndex(r => r.id === id)
     if (idx < 0) throw new Error("Recipe not found")
+
     const current = store.recipes[idx]
+
+     ///Verificação status
+    if (current.status !== "draft") {
+      throw new Error("Only draft recipes can be edited")
+    }
+    ///
 
     const updated = { ...current }
 
@@ -137,10 +152,10 @@ export class RecipeService implements IRecipeService {
     if (data.ingredients !== undefined) {
       const incoming = Array.isArray(data.ingredients)
         ? data.ingredients.map((i) => ({
-            name: String(i.name ?? "").trim(),
-            quantity: Number(i.quantity ?? 0),
-            unit: String(i.unit ?? "").trim(),
-          }))
+          name: String(i.name ?? "").trim(),
+          quantity: Number(i.quantity ?? 0),
+          unit: String(i.unit ?? "").trim(),
+        }))
         : []
 
       incoming.forEach((i) => {
@@ -164,8 +179,40 @@ export class RecipeService implements IRecipeService {
 
   async delete(id: string): Promise<void> {
     const idx = store.recipes.findIndex(r => r.id === id)
-    if (idx >= 0) {
-      store.recipes.splice(idx, 1)
+    const copia = store.recipes[idx]
+    if (idx < 0) throw new Error("ID does not exist")
+    ///Verificação status
+    if (copia.status !== "draft") {
+      throw new Error('You can only delete draft recipes')
     }
+    ///
+    store.recipes.splice(idx, 1)
+  }
+   /// Metodo public
+  async publicar(id: string): Promise<Recipe> {
+    let procura = store.recipes.find((c) => c.id == id)
+
+    if (!procura) {
+      throw new Error("Recipe not found")
+    }
+    if (procura.status !== "draft") {
+      throw new Error("You can only publish draft recipes")
+    }
+    procura.status = "published"
+    return procura
+  }
+
+  ///Metodo archive
+  async archivar(id: string): Promise<Recipe> {
+    let procura = store.recipes.find((c) => c.id == id)
+
+    if (!procura) {
+      throw new Error("Recipe not found")
+    }
+    if (procura.status !== "published") {
+      throw new Error("You can only archive published recipes")
+    }
+    procura.status = "archived"
+    return procura
   }
 }
