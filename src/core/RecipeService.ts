@@ -6,6 +6,25 @@ import { IngredientService } from "./IngredientService.js"
 import { IRecipeService } from "./interfaces/IRecipeService.js"
 
 export class RecipeService implements IRecipeService {
+  async scaleRecipe(id: string, servings: number): Promise<Recipe> {
+    if (!(servings > 0)) throw new Error("Servings must be greater than 0");
+  const recipe = await this.get(id);
+  if (!recipe) throw new Error("Recipe not found");
+
+  const factor = servings / recipe.servings;
+
+  // Cria uma nova receita escalonada (não altera a original)
+  return {
+    ...recipe,
+    servings,
+    ingredients: recipe.ingredients.map(ing => ({
+      ...ing,
+      quantity: ing.quantity * factor
+    })),
+    createdAt: new Date()
+  };
+  }
+
   private categoryService = new CategoryService()
   private ingredientService = new IngredientService()
 
@@ -22,6 +41,8 @@ export class RecipeService implements IRecipeService {
     }
 
     let items = [...store.recipes]
+
+    items = items.filter(recipe => recipe.status === 'published')
     
     if (categoryId) {
       items = items.filter(r => r.categoryId === categoryId)
@@ -95,6 +116,7 @@ export class RecipeService implements IRecipeService {
       steps,
       servings,
       categoryId: input.categoryId,
+      status: 'draft',
       createdAt: new Date(),
     }
     store.recipes.push(recipe)
@@ -105,6 +127,10 @@ export class RecipeService implements IRecipeService {
     const idx = store.recipes.findIndex(r => r.id === id)
     if (idx < 0) throw new Error("Recipe not found")
     const current = store.recipes[idx]
+
+    if (current.status === 'archived') {
+      throw new Error("Archived recipes cannot be edited")
+    }
 
     const updated = { ...current }
 
@@ -164,8 +190,41 @@ export class RecipeService implements IRecipeService {
 
   async delete(id: string): Promise<void> {
     const idx = store.recipes.findIndex(r => r.id === id)
-    if (idx >= 0) {
-      store.recipes.splice(idx, 1)
+    if (idx < 0) throw new Error("Recipe not found")
+
+    const recipe = store.recipes[idx]
+
+    if (recipe.status === 'published') {
+    throw new Error("Published recipes cannot be deleted. They must be archived.")
     }
+
+  store.recipes.splice(idx, 1)
+}
+  async consolidateShoppingList(recipeIds: string[]): Promise<Array<{ name: string; unit: string; quantity: number }>> {
+    
+    // Search Recipe
+
+    const findRecipesById = await Promise.all(recipeIds.map((id) => this.get(id)));
+    
+    const allIngredients = await this.ingredientService.list();
+    const nameById = new Map(allIngredients.map((ing) => [ing.id, ing.name]));  
+
+    // Consolidate Recipes
+    const consolidated = new Map<string, { name : string; unit : string, quantity : number}>();
+
+    for (const recipe of findRecipesById) {
+      for (const ing of recipe.ingredients) {
+        const key = `${ing.ingredientId}_${ing.unit}`;
+        const name = nameById.get(ing.ingredientId) ?? "Unknown";
+
+        if (consolidated.has(key)) {
+          consolidated.get(key)!.quantity += ing.quantity;
+        } else {
+          consolidated.set(key, { name, unit : ing.unit, quantity : ing.quantity});
+        }
+      }
+    }
+
+    return Array.from(consolidated.values());
   }
 }

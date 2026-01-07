@@ -19,6 +19,8 @@ Aplicação em camadas (SRP) construída com Node.js, TypeScript e Express, com 
   - Unicidade de nome para Categoria e Ingrediente.
   - Receita deve referenciar uma Categoria existente.
   - Bloqueio de exclusão de Categoria quando houver Receitas relacionadas.
+  - Ingredientes enviados na criação/atualização de receita são resolvidos automaticamente: se um ingrediente não existir, ele é criado.
+  - Receitas possuem status: `draft`, `published`, `archived`. Apenas `published` são retornadas nas listagens públicas; receitas `published` não podem ser deletadas; receitas `archived` não podem ser editadas.
 
 ## Arquitetura Simplificada (2 Camadas)
 - `core`: Contém toda a lógica de negócio, modelos de dados, interfaces e acesso aos dados (armazenamento em memória).
@@ -90,11 +92,14 @@ Ingredientes
 - `DELETE /ingredients/:id` — remove
 
 Receitas
-- `GET /recipes?categoryId=&search=` — lista com filtros
+Receitas
+- `GET /recipes?categoryId=&search=` — lista com filtros (retorna apenas receitas com `status=published`)
+- `GET /recipes?recipeIds=<id1,id2,...>` — quando `recipeIds` é fornecido retorna uma lista de compras consolidada agrupando ingredientes por ingrediente+unidade (formato: `{ name, unit, quantity }`).
 - `GET /recipes/:id` — detalhe
-- `POST /recipes` — cria `{ title, description?, ingredients: [{ name, quantity, unit }], steps[], categoryId }`
-- `PUT /recipes/:id` — atualiza parcial dos mesmos campos
-- `DELETE /recipes/:id` — remove
+- `GET /recipes/:id/scale?servings=<n>` — retorna uma cópia da receita escalada para `<n>` porções (não altera a receita original).
+- `POST /recipes` — cria `{ title, description?, ingredients: [{ name, quantity, unit }], steps[], servings, categoryId }` (ingredientes não existentes são criados automaticamente)
+- `PUT /recipes/:id` — atualiza parcial dos mesmos campos (receitas `archived` não podem ser modificadas)
+- `DELETE /recipes/:id` — remove (não é permitida para receitas `published`)
 
 Códigos de erro: as validações retornam `400` com `{ error: "mensagem" }` (middleware em `src/presentation/http/middlewares/errorHandler.ts`).
 

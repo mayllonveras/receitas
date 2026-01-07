@@ -2,15 +2,15 @@ type: collection.insomnia.rest/5.0
 schema_version: "5.1"
 name: Recipes
 meta:
-  id: wrk_3b9a9831797d4845bdfc0e05c2cbf140
-  created: 1765412665318
-  modified: 1765982852851
+  id: wrk_7244ab7616844cc09351d82c8c3f4533
+  created: 1767630608372
+  modified: 1767630608372
   description: ""
 collection:
   - url: "{{baseUrl}}/categories"
     name: List Categories
     meta:
-      id: req_03a00dc45097400fa11be8056dc3c7e8
+      id: req_39ce73171c3246358690183fb84c785f
       created: 1765412665489
       modified: 1765984087256
       isPrivate: false
@@ -33,16 +33,16 @@ collection:
   - url: "{{baseUrl}}/categories"
     name: Create Category
     meta:
-      id: req_27fe2d550bfe4d8ea6ce68336fa12370
+      id: req_20df45d802524eeeaeb81505c2a69e40
       created: 1765412821874
-      modified: 1765983441575
+      modified: 1767630748026
       isPrivate: false
       description: ""
       sortKey: -1765697582879
     method: POST
     body:
       mimeType: application/json
-      text: '{ "name": "Massas" }'
+      text: '{ "name": "doces" }'
     headers:
       - name: Content-Type
         value: application/json
@@ -61,7 +61,7 @@ collection:
   - url: "{{baseUrl}}/categories/1de3de75-1f03-419e-ad86-d803d296ea17"
     name: Show Category
     meta:
-      id: req_38598fd2b3bc447da1933fe6acab7668
+      id: req_055a8c9a851443b581271e700e6a2f04
       created: 1765414569582
       modified: 1765984098022
       isPrivate: false
@@ -84,7 +84,7 @@ collection:
   - url: "{{baseUrl}}/recipes"
     name: List Recipes
     meta:
-      id: req_ec16de41e471487d88149263e135f14c
+      id: req_0a05eecf44c64afeb106da4e3ff82632
       created: 1765414773717
       modified: 1765984124734
       isPrivate: false
@@ -107,7 +107,7 @@ collection:
   - url: "{{baseUrl}}/ingredients"
     name: List Ingredients
     meta:
-      id: req_35c81fa947c34954a44637314cc25407
+      id: req_10c946b9623f44d3b374f37277560cc1
       created: 1765414831438
       modified: 1765984109514
       isPrivate: false
@@ -130,7 +130,7 @@ collection:
   - url: "{{baseUrl}}/ingredients"
     name: Create Ingredient
     meta:
-      id: req_84cabb80b6ec440099838f81d06d6939
+      id: req_3e0ccc12b6874d2aa4ff583fdc447cf2
       created: 1765980252169
       modified: 1765982776294
       isPrivate: false
@@ -158,7 +158,7 @@ collection:
   - url: "{{baseUrl}}/recipes"
     name: Create Recipe [ bolo de cenoura ]
     meta:
-      id: req_bf690e73edd341eeb742583b5832b57a
+      id: req_6e1e9467815d4a12a3e8cfaee656cb98
       created: 1765980403434
       modified: 1765987935482
       isPrivate: false
@@ -214,7 +214,7 @@ collection:
   - url: "{{baseUrl}}/recipes/5fd063f2-97bc-4451-86e2-aa4a3a50326a"
     name: Show Recipe
     meta:
-      id: req_71ba4f32d0944e4ab59cfef55ecb1d07
+      id: req_93023a0f2633441988d715857382167a
       created: 1765980696089
       modified: 1765987699104
       isPrivate: false
@@ -237,7 +237,7 @@ collection:
   - url: "{{baseUrl}}/recipes/3dff9a9f-2c10-4567-b51a-4dbe42c9d04f"
     name: Update Recipe
     meta:
-      id: req_91287751413841f7ab2e7650ca5af7a6
+      id: req_504a981fd0e748a5a819623a0c5d78eb
       created: 1765980898367
       modified: 1765980974664
       isPrivate: false
@@ -268,7 +268,7 @@ collection:
   - url: "{{baseUrl}}/recipes?categoryName=Sobremesas"
     name: List Recipes [CategoryName]
     meta:
-      id: req_e179e94910734554ab5e4692afe6c525
+      id: req_19b2763400ea4f8b87dfc85dbf960e30
       created: 1765981937371
       modified: 1765984136222
       isPrivate: false
@@ -291,7 +291,7 @@ collection:
   - url: "{{baseUrl}}/recipes"
     name: Create Recipe [mousse de maracujá ]
     meta:
-      id: req_70032af356b54596a86d84c83d457f87
+      id: req_1565a07cb50840ebab3e4a9fdbb901f3
       created: 1765982127963
       modified: 1765988045706
       isPrivate: false
@@ -347,9 +347,9 @@ collection:
   - url: "{{baseUrl}}/recipes"
     name: Create Recipe [ Pudim de Leite Condensado ]
     meta:
-      id: req_bd469922738149afb3e493e4b1c88250
+      id: req_9bc5e84017b841659dc822e40f009929
       created: 1765982289024
-      modified: 1765988097222
+      modified: 1767630819783
       isPrivate: false
       description: ""
       sortKey: -1759151600496.1094
@@ -360,7 +360,7 @@ collection:
         {
           "title": "Pudim de Leite Condensado",
           "description": "Clássico pudim cremoso com calda de caramelo",
-          "categoryId": "534a09f8-6fc9-4dd6-a1c8-cabf31b4dd7a",
+          "categoryId": "ef5c3f32-a3df-4dc5-96ed-408d4f28d2ad",
           "ingredients": [
             {
               "name": "Leite Condensado",
@@ -410,7 +410,7 @@ collection:
   - url: "{{baseUrl}}/recipes/547e7294-3614-4acb-a881-dabe98fef8e6"
     name: Delete Recipe
     meta:
-      id: req_a3d62395de044f499c15fecfd4925cde
+      id: req_04a64fade9e842a6a011efd1320a6b06
       created: 1765982500269
       modified: 1765984168605
       isPrivate: false
@@ -433,7 +433,7 @@ collection:
   - url: "{{baseUrl}}/recipes"
     name: Create Recipe [ Espaguete à Bolonhesa ]
     meta:
-      id: req_331ebb0686cb4ef58e87cd9c61ca2ac5
+      id: req_1983d10fe70a4f928f23f739cbe90c87
       created: 1765983575907
       modified: 1765988158334
       isPrivate: false
@@ -498,16 +498,40 @@ collection:
         send: true
         store: true
       rebuildPath: true
+  - url: "{{baseUrl}}/recipes/ef5c3f32-a3df-4dc5-96ed-408d4f28d2ad/scale?servings=1\
+      0"
+    name: Scale Recipe
+    meta:
+      id: req_2694b55670f042f7a59a6bf238051f7d
+      created: 1767630683219
+      modified: 1767746441729
+      isPrivate: false
+      description: ""
+      sortKey: -1767630683219
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.2.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
 cookieJar:
   name: Default Jar
   meta:
-    id: jar_f6118afe7c68e1497e36bf5e76346e3882d633ac
+    id: jar_2639589bec35426db036f67bb963d185
     created: 1765412665351
     modified: 1765412665351
 environments:
   name: Base Environment
   meta:
-    id: env_f6118afe7c68e1497e36bf5e76346e3882d633ac
+    id: env_c49566820c154a9690afbf9fe173733f
     created: 1765412665334
     modified: 1765413196355
     isPrivate: false
