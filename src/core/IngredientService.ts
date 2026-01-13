@@ -2,6 +2,7 @@ import crypto from "node:crypto"
 import { store } from "./store.js"
 import { Ingredient } from "./models.js"
 import { IIngredientService } from "./interfaces/IIngredientService.js"
+import { normalizeText } from "./utils/normalizeText.js"
 
 export class IngredientService implements IIngredientService {
   async list(): Promise<Ingredient[]> {
@@ -14,25 +15,64 @@ export class IngredientService implements IIngredientService {
     return found
   }
 
+    /**
+ * CÓDIGO MODIFICADO
+ *
+ * Implementa busca por nome de categoria de forma que ignora espaços adicionais e
+ * vira case-insensitive.
+ *
+ * A função `normalizeText` remove acentos, converte para minúsculas e aplica
+ * `.trim()`, garantindo que variações como:
+ * "Ovo", " ovo ", "ÔVO" ou "ôvo"
+ * sejam tratadas como equivalentes.
+ *
+ * Isso impede duplicidades lógicas e garante integridade e consistência
+ * dos dados no sistema.
+ */
   async findByName(name: string): Promise<Ingredient | undefined> {
-    return store.ingredients.find((i) => i.name === name)
+  const normalized = normalizeText(name)
+
+  return store.ingredients.find(i =>
+    normalizeText(i.name) === normalized
+  )
+}
+
+/**
+ * CÓDIGO MODIFICADO
+ *
+ * Implementa criação de ingredientes de forma robusta.
+ * 
+ * - Converte `data.name` para string, evitando erro caso seja `null` ou `undefined`.
+ * - Aplica `.trim()` para remover espaços extras no início e no fim.
+ * - Garante que o nome não seja vazio após normalização.
+ * - Valida duplicidade usando nome normalizado (sem acentos, em minúsculas e sem espaços).
+ *
+ */
+
+async create(data: { name: string }): Promise<Ingredient> {
+  const name = String(data.name ?? "").trim()
+
+  if (!name) {
+    throw new Error("Ingredient name is required")
   }
 
-  async create(data: { name: string }): Promise<Ingredient> {
-    const name = data.name.trim()
-    if (!name) throw new Error("Name is required")
-
-    const exists = await this.findByName(name)
-    if (exists) throw new Error("Ingredient name must be unique")
-
-    const ingredient: Ingredient = {
-      id: crypto.randomUUID(),
-      name,
-      createdAt: new Date(),
-    }
-    store.ingredients.push(ingredient)
-    return ingredient
+  // verifica duplicidade (sem acentos, minúsculo, trim)
+  const existing = await this.findByName(name)
+  if (existing) {
+    throw new Error("Ingredient name already exists")
   }
+
+  const ingredient: Ingredient = {
+    id: crypto.randomUUID(),
+    name,
+    createdAt: new Date()
+  }
+
+  store.ingredients.push(ingredient)
+
+  return ingredient
+}
+
 
   async update(id: string, data: { name?: string }): Promise<Ingredient> {
     const idx = store.ingredients.findIndex((i) => i.id === id)
