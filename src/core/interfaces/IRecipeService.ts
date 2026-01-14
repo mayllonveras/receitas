@@ -17,4 +17,12 @@ export interface IRecipeService {
    * Escalonamento inteligente de porções (sem persistência).
    */
   scaleRecipe(id: string, newServings: number): Promise<Recipe>
+
+  /**
+   * CÓDIGO NOVO
+   * Geração de lista de compras consolidada.
+   */
+  generateShoppingList(
+    recipeIds: string[]
+  ): Promise<{ ingredientId: string; unit: string; quantity: number }[]>
 }
